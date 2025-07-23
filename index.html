@@ -129,6 +129,17 @@
         document.getElementById('percent1').addEventListener('input', calculate);
         document.getElementById('percent4').addEventListener('input', calculate);
         document.getElementById('kg').addEventListener('input', calculate);
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     </script>
 </body>
 </html>
