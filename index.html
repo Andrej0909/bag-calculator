@@ -9,19 +9,25 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        input {
-            margin: 5px;
-            padding: 8px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        label {
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
             font-weight: bold;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 100%;
         }
         .result {
             margin-top: 20px;
@@ -31,62 +37,97 @@
 <body>
     <h1>Bag Calculator</h1>
     
-    <label for="pcs">PCS:</label>
-    <input type="number" id="pcs" placeholder="Enter PCS"><br><br>
+ <!-- Első sora a táblázatnak -->
+    <table>
+        <tr>
+            <th> </th>
+            <th>Percent</th>
+            <th>PCS</th>
+            <th>Kg</th>
+        </tr>
+<!-- Második sora a táblázatnak -->
+        <tr>
+            <td>Total</td>
+            <td id="cell22"></td>
+            <td>
+                <input type="number" id="pcs" placeholder="Enter PCS"><br><br>
+            </td>
+            <td>
+                <input type="number" id="kg" placeholder="Enter Kg"><br><br>
+            </td>
+        </tr>
+ <!-- Harmadik sora a táblázatnak -->
+        <tr>
+            <td>Comp 1:</td>
+            <td>
+                <input type="number" id="percent1" placeholder="Enter Percent 1" value="30"><br><br>
+            </td>
+            <td id="cell33"></td>
+            <td id="cell34"></td>
+        </tr>
+<!-- Negyedik sora a táblázatnak -->
+        <tr>
+            <td>Comp 3:</td>
+            <td id="cell42"></td>
+            <td id="cell43"></td>
+            <td id="cell44"></td>
+        </tr>
+<!-- Ötödik sora a táblázatnak -->
+        <tr>
+            <td>Comp 4:</td>
+            <td>
+                <input type="number" id="percent4" placeholder="Enter Percent 4" value="30"><br><br>
+            </td>
+            <td id="cell53"></td>
+            <td id="cell54"></td>
+        </tr>
 
-    <label for="percent1">Percent 1:</label>
-    <input type="number" id="percent1" placeholder="Enter Percent 1"><br><br>
+    </table>
 
-    <label for="percent2">Percent 2:</label>
-    <input type="number" id="percent2" placeholder="Enter Percent 2"><br><br>
-
-    <label for="kb">kb:</label>
-    <input type="number" id="kb" placeholder="Enter kb"><br><br>
-
-    <button onclick="calculate()">Calculate</button>
-
-    <div class="result">
-        <p><strong>Percent 1 Calculation:</strong> <span id="result1"></span></p>
-        <p><strong>Percent 2 Calculation:</strong> <span id="result2"></span></p>
-        <p><strong>Remaining Percent Calculation:</strong> <span id="result3"></span></p>
-        <p><strong>PCS Calculation 1:</strong> <span id="result4"></span></p>
-        <p><strong>PCS Calculation 2:</strong> <span id="result5"></span></p>
-        <p><strong>kb Calculation 1:</strong> <span id="result6"></span></p>
-        <p><strong>kb Calculation 2:</strong> <span id="result7"></span></p>
-    </div>
 
     <script>
+        // Function to calculate results
         function calculate() {
             // Get inputs
             var pcs = document.getElementById('pcs').value;
             var percent1 = document.getElementById('percent1').value;
-            var percent2 = document.getElementById('percent2').value;
-            var kb = document.getElementById('kb').value;
+            var percent4 = document.getElementById('percent4').value;
+            var kg = document.getElementById('kg').value;
 
             // Validate inputs
-            if (!pcs || !percent1 || !percent2 || !kb) {
-                alert("Please fill all fields.");
+            if (!pcs || !percent1 || !percent4 || !kg) {
                 return;
             }
 
-            // Calculations based on your logic
-            var result1 = (kb / pcs);
-            var result2 = Math.round((pcs / 100) * percent1);
-            var result3 = 100 - percent1 - percent2;
-            var result4 = pcs - result2 - result3;
-            var result5 = Math.round((pcs / 100) * percent2);
-            var result6 = Math.round(result2 * result1);
-            var result7 = kb - result6 - result5;
+            // Calculations
+            var result1 = (kg / pcs).toFixed(2); // 1 csomag súlyának számítása
+            var result2 = Math.round((pcs / 100) * percent1); // Csomag száma a comp 1ben
+            var result3 = Math.round((pcs / 100) * percent4); // Csomag száma a comp 4ben
+            var result4 = 100 - percent1 - percent4; // maradék csomag szazalek a comp 3ban
+            var result5 = pcs - result2 - result3; // maradék csomag darab a comp 3ban
+            var result6 = Math.round(result2 * result1); // csomagok súlya a comp 1ben
+            var result7 = Math.round(result3 * result1); // csomagok súlya a comp 4ben
+            var result8 = kg - result6 - result7; // maradék csomag súly a comp 3ban
 
-            // Display results
-            document.getElementById('result1').textContent = result1;
-            document.getElementById('result2').textContent = result2;
-            document.getElementById('result3').textContent = result3;
-            document.getElementById('result4').textContent = result4;
-            document.getElementById('result5').textContent = result5;
-            document.getElementById('result6').textContent = result6;
-            document.getElementById('result7').textContent = result7;
+
+            // számított eredmények cellákhoz rendelése
+            document.getElementById('cell22').textContent = result1;
+            document.getElementById('cell33').textContent = result2;
+            document.getElementById('cell34').textContent = result6;
+            document.getElementById('cell42').textContent = result4;
+            document.getElementById('cell43').textContent = result5;
+            document.getElementById('cell44').textContent = result8;
+            document.getElementById('cell53').textContent = result3;
+            document.getElementById('cell54').textContent = result7;
+
+
         }
+
+        // Add event listeners to each input field to trigger calculation on change
+        document.getElementById('pcs').addEventListener('input', calculate);
+        document.getElementById('percent1').addEventListener('input', calculate);
+        document.getElementById('percent4').addEventListener('input', calculate);
+        document.getElementById('kg').addEventListener('input', calculate);
     </script>
 </body>
 </html>
