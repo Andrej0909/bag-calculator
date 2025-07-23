@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
     <title>Bag Calculator</title>
     <style>
         body {
@@ -130,16 +129,24 @@
         document.getElementById('percent4').addEventListener('input', calculate);
         document.getElementById('kg').addEventListener('input', calculate);
 
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(function(registration) {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(function(error) {
-                    console.log('Service Worker registration failed:', error);
-                });
+        // In this code we check if the browser supports Service Workers
+        async function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register(
+              "sw.js"
+            );
+            console.log(
+              "Service Worker registered with scope:",
+              registration.scope
+            );
+          } catch (error) {
+            console.error("Service Worker registration failed:", error);
+          }
         }
+      }
+
+      registerServiceWorker();
     </script>
 </body>
 </html>
