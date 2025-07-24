@@ -38,12 +38,22 @@
             background-color: #e0f3ff;
             border: 3px solid #2b2b2b;
             margin-top: 29px
+        }
+
+        /* Style for the result number next to the title */
+        #result {
+            font-size: 30px;
+            position: absolute;
+            right: 40px;
+            top: 60px;
+            
+        }
 
 
     </style>
 </head>
 <body>
-    <h1>Bag Calculator</h1>
+    <h1>Bag Calculator <span id="result"></span></h1>
     
  <!-- Első sora a táblázatnak -->
     <table>
@@ -56,7 +66,7 @@
 <!-- Második sora a táblázatnak -->
         <tr>
             <td>Total</td>
-            <td id="cell22"></td>
+            <th> </th>
             <td>
                 <input type="number" id="pcs" placeholder="Enter PCS"><br><br>
             </td>
@@ -119,7 +129,7 @@
 
 
             // számított eredmények cellákhoz rendelése
-            document.getElementById('cell22').textContent = result1;
+            document.getElementById('result').innerHTML = "<strong>" + result1 + "</strong> kg/bag";
             document.getElementById('cell33').textContent = result2;
             document.getElementById('cell34').textContent = result6;
             document.getElementById('cell42').textContent = result4;
