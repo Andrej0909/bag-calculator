@@ -6,7 +6,7 @@
     <title>Bag Calculator</title>
     <style>
         * {
-        box-sizing: border-box;
+            box-sizing: border-box;
         }
         body {
             font-family: Arial, sans-serif;
@@ -19,7 +19,6 @@
             margin: 0 auto;
             table-layout: fixed;
             border-collapse: collapse;
-
         }
         th, td {
             border: 3px solid #ddd;
@@ -29,7 +28,6 @@
             text-align: center;
         }
 
-
         input {
             width: 100%;
             height: 100%;
@@ -37,7 +35,13 @@
             text-align: center;
             background-color: #e0f3ff;
             border: 3px solid #2b2b2b;
-            margin-top: 29px
+            
+        }
+
+        /* Readonly inputs for calculated values */
+        input[readonly] {
+            background-color: #f0f0f0;
+            color: #666;
         }
 
         /* Style for the result number next to the title */
@@ -46,16 +50,22 @@
             position: absolute;
             right: 40px;
             top: 60px;
-            
         }
 
-
+        /* Style for calculated cells */
+        .calculated-cell {
+            background-color: #f9f9f9;
+            font-weight: bold;
+            vertical-align: middle;
+            padding: 20px;
+            font-size: 25px;
+        }
     </style>
 </head>
 <body>
     <h1>Bag Calculator <span id="result"></span></h1>
-    
- <!-- Első sora a táblázatnak -->
+
+    <!-- First row of the table -->
     <table>
         <tr>
             <th> </th>
@@ -63,108 +73,219 @@
             <th>PCS</th>
             <th>Kg</th>
         </tr>
-<!-- Második sora a táblázatnak -->
+        <!-- Second row of the table -->
         <tr>
             <td>Total</td>
             <th> </th>
             <td>
-                <input type="number" id="pcs" placeholder="Enter PCS"><br><br>
+                <input type="number" id="totalPcs" placeholder="Enter Total PCS" min="1"><br><br>
             </td>
             <td>
-                <input type="number" id="kg" placeholder="Enter Kg"><br><br>
+                <input type="number" id="totalKg" placeholder="Enter Total Kg" min="0.1" step="0.1"><br><br>
             </td>
         </tr>
- <!-- Harmadik sora a táblázatnak -->
+        <!-- Third row of the table -->
         <tr>
             <td>Comp 1:</td>
             <td>
-                <input type="number" id="percent1" placeholder="Enter Percent 1" value="30"><br><br>
+                <input type="number" id="percent1" placeholder="Enter %" min="0" max="100" step="1" value="30">
             </td>
-            <td id="cell33"></td>
-            <td id="cell34"></td>
+            <td>
+                <input type="number" id="pcs1" placeholder="Enter PCS" min="0">
+            </td>
+            <td class="calculated-cell" id="kg1Display">0</td>
         </tr>
-<!-- Negyedik sora a táblázatnak -->
+        <!-- Fourth row of the table -->
         <tr>
             <td>Comp 3:</td>
-            <td id="cell42"></td>
-            <td id="cell43"></td>
-            <td id="cell44"></td>
+            <td class="calculated-cell" id="percent3Display">40%</td>
+            <td class="calculated-cell" id="pcs3Display">0</td>
+            <td class="calculated-cell" id="kg3Display">0</td>
         </tr>
-<!-- Ötödik sora a táblázatnak -->
+        <!-- Fifth row of the table -->
         <tr>
             <td>Comp 4:</td>
             <td>
-                <input type="number" id="percent4" placeholder="Enter Percent 4" value="30"><br><br>
+                <input type="number" id="percent4" placeholder="Enter %" min="0" max="100" step="1" value="30">
             </td>
-            <td id="cell53"></td>
-            <td id="cell54"></td>
+            <td>
+                <input type="number" id="pcs4" placeholder="Enter PCS" min="0">
+            </td>
+            <td class="calculated-cell" id="kg4Display">0</td>
         </tr>
-
     </table>
 
-
     <script>
-        // Function to calculate results
+        // Smart calculation for 3-compartment system (Comp1, Comp3, Comp4)
         function calculate() {
-            // Get inputs
-            var pcs = document.getElementById('pcs').value;
-            var percent1 = document.getElementById('percent1').value;
-            var percent4 = document.getElementById('percent4').value;
-            var kg = document.getElementById('kg').value;
+            const totalPcs = parseFloat(document.getElementById('totalPcs').value) || 0;
+            const totalKg = parseFloat(document.getElementById('totalKg').value) || 0;
 
             // Validate inputs
-            if (!pcs || !percent1 || !percent4 || !kg) {
+            if (totalPcs <= 0 || totalKg <= 0) {
+                clearResults();
                 return;
             }
 
-            // Calculations
-            var result1 = (kg / pcs).toFixed(2); // 1 csomag súlyának számítása
-            var result2 = Math.round((pcs / 100) * percent1); // Csomag száma a comp 1ben
-            var result3 = Math.round((pcs / 100) * percent4); // Csomag száma a comp 4ben
-            var result4 = 100 - percent1 - percent4; // maradék csomag szazalek a comp 3ban
-            var result5 = pcs - result2 - result3; // maradék csomag darab a comp 3ban
-            var result6 = Math.round(result2 * result1); // csomagok súlya a comp 1ben
-            var result7 = Math.round(result3 * result1); // csomagok súlya a comp 4ben
-            var result8 = kg - result6 - result7; // maradék csomag súly a comp 3ban
+            // Calculate weight per bag
+            const kgPerBag = totalKg / totalPcs;
 
+            // Get input values for Comp1 and Comp4
+            const pcs1 = parseFloat(document.getElementById('pcs1').value) || 0;
+            const pcs4 = parseFloat(document.getElementById('pcs4').value) || 0;
+            const percent1 = parseFloat(document.getElementById('percent1').value) || 0;
+            const percent4 = parseFloat(document.getElementById('percent4').value) || 0;
 
-            // számított eredmények cellákhoz rendelése
-            document.getElementById('result').innerHTML = "<strong>" + result1 + "</strong> kg/bag";
-            document.getElementById('cell33').textContent = result2;
-            document.getElementById('cell34').textContent = result6;
-            document.getElementById('cell42').textContent = result4;
-            document.getElementById('cell43').textContent = result5;
-            document.getElementById('cell44').textContent = result8;
-            document.getElementById('cell53').textContent = result3;
-            document.getElementById('cell54').textContent = result7;
+            let actualPcs1, actualPcs3, actualPcs4;
+            let actualPercent1, actualPercent3, actualPercent4;
 
+            // Determine which inputs have values to decide calculation mode
+            const hasPcsInput = pcs1 > 0 || pcs4 > 0;
+            const hasCustomPercent = (percent1 > 0 && percent1 !== 30) || (percent4 > 0 && percent4 !== 30);
+            const hasPercentInput = hasCustomPercent;
 
+            if (hasPcsInput && !hasPercentInput) {
+                // PCS mode - calculate percentages from PCS values
+                actualPcs1 = Math.min(pcs1, totalPcs);
+                actualPcs4 = Math.min(pcs4, totalPcs - actualPcs1);
+                actualPcs3 = totalPcs - actualPcs1 - actualPcs4;
+
+                // Calculate percentages from PCS
+                actualPercent1 = totalPcs > 0 ? Math.round((actualPcs1 / totalPcs) * 100) : 0;
+                actualPercent4 = totalPcs > 0 ? Math.round((actualPcs4 / totalPcs) * 100) : 0;
+                actualPercent3 = 100 - actualPercent1 - actualPercent4;
+
+                // Update Percent inputs with calculated values
+                document.getElementById('percent1').value = actualPercent1;
+                document.getElementById('percent4').value = actualPercent4;
+
+                // Visual feedback for over-allocation
+                const isOverAllocated = (pcs1 + pcs4) > totalPcs;
+                document.getElementById('pcs1').style.borderColor = isOverAllocated ? '#ff4444' : '#2b2b2b';
+                document.getElementById('pcs4').style.borderColor = isOverAllocated ? '#ff4444' : '#2b2b2b';
+                document.getElementById('percent1').style.borderColor = '#2b2b2b';
+                document.getElementById('percent4').style.borderColor = '#2b2b2b';
+
+            } else if (hasPercentInput && !hasPcsInput) {
+                // Percent mode - calculate PCS from percentage values
+                actualPercent1 = percent1;
+                actualPercent4 = percent4;
+                actualPercent3 = 100 - actualPercent1 - actualPercent4;
+
+                // Calculate PCS from percentages
+                actualPcs1 = Math.round((actualPercent1 / 100) * totalPcs);
+                actualPcs4 = Math.round((actualPercent4 / 100) * totalPcs);
+                actualPcs3 = totalPcs - actualPcs1 - actualPcs4;
+
+                // Visual feedback for over-allocation
+                const isOverAllocated = (percent1 + percent4) > 100;
+                document.getElementById('percent1').style.borderColor = isOverAllocated ? '#ff4444' : '#2b2b2b';
+                document.getElementById('percent4').style.borderColor = isOverAllocated ? '#ff4444' : '#2b2b2b';
+                document.getElementById('pcs1').style.borderColor = '#2b2b2b';
+                document.getElementById('pcs4').style.borderColor = '#2b2b2b';
+
+            } else {
+                // Use default values or current values from input fields
+                actualPercent1 = percent1 || 30;
+                actualPercent4 = percent4 || 30;
+                actualPercent3 = 100 - actualPercent1 - actualPercent4;
+
+                actualPcs1 = Math.round((actualPercent1 / 100) * totalPcs);
+                actualPcs4 = Math.round((actualPercent4 / 100) * totalPcs);
+                actualPcs3 = totalPcs - actualPcs1 - actualPcs4;
+
+                // Update PCS fields to show calculated values when using default percentages
+                if (!pcs1 && !pcs4) {
+                    document.getElementById('pcs1').value = actualPcs1;
+                    document.getElementById('pcs4').value = actualPcs4;
+                }
+            }
+
+            // Calculate weights
+            const kg1 = Math.round((actualPcs1 * kgPerBag).toFixed(2));
+            const kg4 = Math.round((actualPcs4 * kgPerBag).toFixed(2));
+            const kg3 = totalKg-kg1-kg4;
+
+            // Update display
+            document.getElementById('result').innerHTML = "<strong>" + kgPerBag.toFixed(2) + "</strong> kg/bag";
+
+            // Update Comp 3 display (always calculated)
+            document.getElementById('percent3Display').textContent = actualPercent3 + "%";
+            document.getElementById('pcs3Display').textContent = actualPcs3;
+
+            // Update weights
+            document.getElementById('kg1Display').textContent = kg1;
+            document.getElementById('kg3Display').textContent = kg3;
+            document.getElementById('kg4Display').textContent = kg4;
         }
 
-        // Add event listeners to each input field to trigger calculation on change
-        document.getElementById('pcs').addEventListener('input', calculate);
-        document.getElementById('percent1').addEventListener('input', calculate);
-        document.getElementById('percent4').addEventListener('input', calculate);
-        document.getElementById('kg').addEventListener('input', calculate);
+        // Function to clear results when inputs are invalid
+        function clearResults() {
+            document.getElementById('result').innerHTML = "";
+            document.getElementById('percent3Display').textContent = "40%";
+            document.getElementById('pcs3Display').textContent = "0";
+            document.getElementById('kg1Display').textContent = "0";
+            document.getElementById('kg3Display').textContent = "0";
+            document.getElementById('kg4Display').textContent = "0";
+        }
 
-        // In this code we check if the browser supports Service Workers
+        // Event listeners for 3-compartment system
+        document.getElementById('totalPcs').addEventListener('input', calculate);
+        document.getElementById('totalKg').addEventListener('input', calculate);
+        
+        // Comp1 input listeners
+        document.getElementById('pcs1').addEventListener('input', function() {
+            if (this.value !== '') {
+                document.getElementById('percent1').value = '';
+                document.getElementById('percent4').value = '';
+            }
+            calculate();
+        });
+        
+        document.getElementById('percent1').addEventListener('input', function() {
+            if (this.value !== '') {
+                document.getElementById('pcs1').value = '';
+                document.getElementById('pcs4').value = '';
+            }
+            calculate();
+        });
+        
+        // Comp4 input listeners
+        document.getElementById('pcs4').addEventListener('input', function() {
+            if (this.value !== '') {
+                document.getElementById('percent1').value = '';
+                document.getElementById('percent4').value = '';
+            }
+            calculate();
+        });
+        
+        document.getElementById('percent4').addEventListener('input', function() {
+            if (this.value !== '') {
+                document.getElementById('pcs1').value = '';
+                document.getElementById('pcs4').value = '';
+            }
+            calculate();
+        });
+
+        // Initialize with default percentages and trigger calculation if totals exist
+        clearResults();
+        
+        // Trigger initial calculation to show default split when totals are entered
+        calculate();
+
+        // Service Worker registration
         async function registerServiceWorker() {
-        if ("serviceWorker" in navigator) {
-          try {
-            const registration = await navigator.serviceWorker.register(
-              "sw.js"
-            );
-            console.log(
-              "Service Worker registered with scope:",
-              registration.scope
-            );
-          } catch (error) {
-            console.error("Service Worker registration failed:", error);
-          }
+            if ("serviceWorker" in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register("sw.js");
+                    console.log("Service Worker registered with scope:", registration.scope);
+                } catch (error) {
+                    console.error("Service Worker registration failed:", error);
+                }
+            }
         }
-      }
 
-      registerServiceWorker();
+        registerServiceWorker();
     </script>
 </body>
 </html>
