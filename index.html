@@ -29,7 +29,6 @@
             text-align: center;
         }
 
-
         input {
                width: 100%;
                height: 100%;
@@ -39,7 +38,6 @@
                border: 3px solid #2b2b2b;
         }
 
-
         /* Style for the result number next to the title */
         #result {
             font-size: 30px;
@@ -47,16 +45,19 @@
             right: 40px;
             top: 60px;
             }
-            
-        
-         button {
-          font-size: 25px;
-          cursor: pointer;
-          height: 100%;  
-          width: 20%;
-          padding: 0;
-          }
 
+        button {
+            font-size: 25px;
+            cursor: pointer;
+            height: 100%;  
+            width: 20%;
+            padding: 0;
+        }
+
+        .button2 {   
+            height: 60px;  
+            width: 30vw;
+        }
 
     </style>
 </head>
@@ -140,13 +141,26 @@
         <td id="cell54"></td>
     </tr>
 
-</table>
+<!-- Hatodik sora a táblázatnak -->
+<tr>
+    <td>Bulk:</td>
+    <td id="cell62"></td>
+    <td id="cell63"></td>
+    <td id="cell64"></td>
+</tr>
 
+</table>
+   
+<div style="text-align: center; margin-top: 20px;">
+    <button class="button2" type="button" onclick="setavst()">Avionexpress standard</button>
+    <button class="button2" type="button" onclick="resetFields()">Reset</button>
+    <button class="button2" type="button" onclick="setewst()">Eurowing standard</button>
+</div>
 
 <script>
     // Function to calculate results
     function calculateall() {
-            // Get inputs
+        // Get inputs
         var pcs = document.getElementById('pcs').value;
         var percent1 = document.getElementById('percent1').value;
         var percent4 = document.getElementById('percent4').value;
@@ -230,6 +244,61 @@
         calculateall(); // Trigger recalculation
         }
 
+    function resetFields() {
+        // Clear pcs and kg fields
+        document.getElementById('pcs').value = '';
+        document.getElementById('kg').value = '';
+        document.getElementById('pcs1').value = '';
+        document.getElementById('pcs4').value = '';
+        document.getElementById('percent1').value = 30;
+        document.getElementById('percent4').value = 30;
+        document.getElementById('cell34').textContent = '';
+        document.getElementById('cell42').textContent = '';
+        document.getElementById('cell43').textContent = '';
+        document.getElementById('cell44').textContent = '';
+        document.getElementById('cell54').textContent = '';
+        document.getElementById('cell63').textContent = '';
+        document.getElementById('cell64').textContent = '';
+    }
+
+    function setavst() {
+        document.getElementById('percent1').value = 30;
+        document.getElementById('percent4').value = 30;
+        document.getElementById('cell63').textContent = '';
+        document.getElementById('cell64').textContent = '';
+        calculateall();
+    }
+
+    function setewst() {
+        document.getElementById('percent1').value = '';
+        document.getElementById('cell42').textContent = '';
+        document.getElementById('percent4').value = '';
+        var pcs = document.getElementById('pcs').value;
+        var kg = document.getElementById('kg').value;
+        var result1 = (kg / pcs);
+        document.getElementById('result').innerHTML = "<strong>" + result1.toFixed(2) + "</strong> kg/bag";
+        var maxpcs1= Math.floor(1500 / result1);
+        var pcs1 = Math.min(pcs, maxpcs1);
+        document.getElementById('pcs1').value = pcs1;
+        var maxpcs34= Math.floor(1000 / result1);
+        var pcs3 = Math.min(pcs - pcs1, maxpcs34);
+        document.getElementById('cell43').textContent = pcs3;
+        var kg3 = Math.round(pcs3 * result1);
+        document.getElementById('cell44').textContent = kg3;
+        var pcs4 = Math.min(pcs - pcs1 - pcs3, maxpcs34);
+        document.getElementById('pcs4').value = pcs4;
+        var kg4 = Math.round(pcs4 * result1);
+        document.getElementById('cell54').textContent = kg4;
+        var pcsb = pcs - pcs1 - pcs3 - pcs4;
+        document.getElementById('cell63').textContent = pcsb;
+        var kgb= Math.round(pcsb * result1)
+        document.getElementById('cell64').textContent = kgb;
+        var kg1 = kg - kgb - kg4 -kg3; // csomagok súlya a comp 1ben
+        document.getElementById('cell34').textContent = kg1;
+    }
+
+
+    //A GOMBOKHOZ TARTOZÓ FÜGGVÉNYEK
     function adjustpercent1(change) {
         const percent1Input = document.getElementById('percent1');
         let currentValue = parseInt(percent1Input.value) || 0;
