@@ -53,7 +53,7 @@
           font-size: 25px;
           cursor: pointer;
           height: 100%;  
-          width: 25%;
+          width: 20%;
           padding: 0;
           }
 
@@ -77,11 +77,9 @@
         <th> </th>
         <td>
             <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <button type="button" onclick="adjustpcs(-1)">−</button>
             <input type="number" id="pcs" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 20%;">
-                <button type="button" onclick="adjustpcs(1)">+</button>
-                <button type="button" onclick="adjustpcs(-1)">−</button>
-                </div>
+            <button type="button" onclick="adjustpcs(1)">+</button>
             </div>
         </td>
 
@@ -94,21 +92,17 @@
         <td>Comp 1:</td>
         <td>
             <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <button type="button" onclick="adjustpercent1(-1)">−</button>
             <input type="number" id="percent1" placeholder="Enter Percent 1" min="0" max="100" value="30" style="width: 80%; text-align: center; font-size: 25px;">
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 20%;">
-                <button type="button" onclick="adjustpercent1(1)">+</button>
-                <button type="button" onclick="adjustpercent1(-1)">−</button>
-                </div>
+            <button type="button" onclick="adjustpercent1(1)">+</button>
             </div>
         </td>
 
         <td>
             <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <button type="button" onclick="adjustpcs1(-1)">−</button>
             <input type="number" id="pcs1" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 20%;">
-                <button type="button" onclick="adjustpcs1(1)">+</button>
-                <button type="button" onclick="adjustpcs1(-1)">−</button>
-                </div>
+            <button type="button" onclick="adjustpcs1(1)">+</button>
             </div>
         </td>
 
@@ -129,19 +123,17 @@
 
         <td>
             <div style="display: flex; align-items: center; height: 100%; width: 100%;">
-            <button type="button" onclick="adjustpercent4(1)">+</button>
+            <button type="button" onclick="adjustpercent4(-1)">−</button> 
             <input type="number" id="percent4" placeholder="Enter Percent 4" min="0" max="100" value="30" style="width: 80%; text-align: center; font-size: 25px;">
-            <button type="button" onclick="adjustpercent4(-1)">−</button>
+            <button type="button" onclick="adjustpercent4(1)">+</button>
             </div>
         </td>
 
         <td>
             <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <button type="button" onclick="adjustpcs4(-1)">−</button>
             <input type="number" id="pcs4" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 20%;">
-                <button type="button" onclick="adjustpcs4(1)">+</button>
-                <button type="button" onclick="adjustpcs4(-1)">−</button>
-                </div>
+            <button type="button" onclick="adjustpcs4(1)">+</button>
             </div>
         </td>
 
