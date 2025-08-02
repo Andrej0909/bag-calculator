@@ -304,7 +304,6 @@
         document.getElementById('kg3value').textContent = kg3value;
         document.getElementById('pcs4').value = pcs4;
         document.getElementById('kg4value').textContent = kg4value;
-
         checklimit ()
         }
 
@@ -448,6 +447,7 @@
         document.getElementById('cell63').textContent = '';
         document.getElementById('cell64').textContent = '';
         calculateall();
+        checklimit ()
         }
 
     function setewst() {    //to calculate for eurowing standard loading
@@ -479,6 +479,7 @@
         document.getElementById('cell64').textContent = kgb;
         var kg1value = kgvalue - kgb - kg4value -kg3value; // csomagok súlya a comp 1ben
         document.getElementById('kg1value').textContent = kg1value;
+        checklimit ()
         }
 
     //Gombok és mezők ki/be kapcsolása
@@ -523,12 +524,12 @@
         } else{
             document.getElementById('kg1warning').value = " ";
         }
-        if (kg1value > 3402) {
+        if (kg3value > 2146) {
             document.getElementById('kg3warning').value = "LIMIT: 2146!";   //2146 cp3
         } else{
             document.getElementById('kg3warning').value = " ";
         }
-        if (kg1value > 3402) {
+        if (kg4value > 2110) {
             document.getElementById('kg4warning').value = "LIMIT: 2110!";   //2110 cp4
         } else{
             document.getElementById('kg4warning').value = " ";
