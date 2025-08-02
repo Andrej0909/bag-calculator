@@ -62,13 +62,7 @@
             width: 20%;
             padding: 0;
             text-align: center;
-            }/*
-        
-        button:disabled {
-            /*background-color: #D3D3D3; 
-            cursor: not-allowed;  
-            opacity: 0.5;    
-            }*/
+            }
 
         .button2 {   
             height: 60px;  
@@ -136,7 +130,23 @@
             </div>
         </td>
 
-        <td id="cell34"></td>
+        <td id="cell34" style="position: relative;">
+            <span id="kg1value"></span>
+            <input id="kg1diff" type="text" readonly
+                style="position: absolute;
+                       bottom: 0;                       
+                       right: 0;  /* Adjust this to move within the cell */
+                       width: 50%;
+                       height: 50%;
+                       font-size: 18px;
+                       border: transparent;
+                       color: red;
+                       background: transparent;
+                       display: inline;
+                       pointer-events: none;">
+        </td>
+        
+        
     </tr>
 
 <!-- Negyedik sora a táblázatnak -->
@@ -150,7 +160,22 @@
             <button type="button" id="adjustpcs3plus" onclick="adjustpcs3(1)"disabled>+</button>
             </div>
         </td>
-        <td id="cell44"></td>
+
+        <td id="cell44" style="position: relative;">
+            <span id="kg3value"></span>
+            <input id="kg3diff" type="text" readonly
+                style="position: absolute;
+                       bottom: 0;                       
+                       right: 0;  /* Adjust this to move within the cell */
+                       width: 50%;
+                       height: 50%;
+                       font-size: 18px;
+                       border: transparent;
+                       color: red;
+                       background: transparent;
+                       display: inline;
+                       pointer-events: none;">
+        </td>
     </tr>
 
 <!-- Ötödik sora a táblázatnak -->
@@ -173,7 +198,21 @@
             </div>
         </td>
 
-        <td id="cell54"></td>
+        <td id="cell54" style="position: relative;">
+            <span id="kg4value"></span>
+            <input id="kg4diff" type="text" readonly
+                style="position: absolute;
+                       bottom: 0;                       
+                       right: 0;  /* Adjust this to move within the cell */
+                       width: 50%;
+                       height: 50%;
+                       font-size: 18px;
+                       border: transparent;
+                       color: red;
+                       background: transparent;
+                       display: inline;
+                       pointer-events: none;">
+        </td>
     </tr>
 
 <!-- Hatodik sora a táblázatnak -->
@@ -196,9 +235,16 @@
 </div>
 
 
+
 <script>
+
+    //3402 cp1
+    //2146 cp3
+    //2110 cp4
+    //1497 cpb
     var isLMCMode = false; // Track whether LMC mode is on or off
     var bagkglmc = null; // Variable to store the bagkg constant
+    var kg1valuelmc = null;
 
     // Toggle the LMC mode and change button color
     function toggleLMC() {
@@ -208,16 +254,25 @@
         // Change button color depending on the mode
         if (isLMCMode) {
             lmcButton.classList.add('lmc-mode'); // Add LMC mode class for color change
+            document.getElementById('pcs1').removeEventListener ('input', calculatepcs1);
+            document.getElementById('pcs1').addEventListener ('input', calculatepcs1lmc);
+            document.getElementById('pcs4').removeEventListener ('input', calculatepcs4);
+            document.getElementById('pcs4').addEventListener ('input', calculatepcs4lmc);
             savebagkg(); // Save bagkg as a constant when LMC mode is active
             disableButtons();
         } else {
             lmcButton.classList.remove('lmc-mode'); // Remove LMC mode class for default color
+            document.getElementById('kg1diff').value = '';
+            document.getElementById('kg3diff').value = '';
+            document.getElementById('kg4diff').value = '';
+            document.getElementById('pcs1').addEventListener ('input', calculatepcs1);
+            document.getElementById('pcs1').removeEventListener ('input', calculatepcs1lmc);
+            document.getElementById('pcs4').addEventListener ('input', calculatepcs4);
+            document.getElementById('pcs4').removeEventListener ('input', calculatepcs4lmc);
             enableButtons();
             calculatepcs1();
-            calculatepcs3();
-            
-        }
-        //updateLogicBasedOnMode(); // Call the function to update the logic
+            calculatepcs3();            
+            }
         }
 
     // Save bagkg as a constant in LMC mode
@@ -227,7 +282,9 @@
         if (pcs && kg) {
             var bagkg = (kg / pcs).toFixed(2); // Calculate bagkg
             bagkglmc = bagkg; // Save it as a constant
-            alert("Saved bagkg as: " + bagkglmc); // Show saved value (for debugging)
+            kg1valuelmc = parseInt(document.getElementById('kg1value').textContent);
+            kg3valuelmc = parseInt(document.getElementById('kg3value').textContent);
+            kg4valuelmc = parseInt(document.getElementById('kg4value').textContent);
             }
         }
 
@@ -250,19 +307,19 @@
         var pcs4 = Math.round((pcs / 100) * percent4); // Csomag száma a comp 4ben
         var percent3 = 100 - percent1 - percent4; // maradék csomag szazalek a comp 3ban
         var pcs3 = pcs - pcs1 - pcs4 ; // maradék csomag darab a comp 3ban
-        var kg1 = Math.round(pcs1 * bagkg); // csomagok súlya a comp 1ben
-        var kg4 = Math.round(pcs4 * bagkg); // csomagok súlya a comp 4ben
-        var kg3 = kg - kg1 - kg4; // maradék csomag súly a comp 3ban
+        var kg1value = Math.round(pcs1 * bagkg); // csomagok súlya a comp 1ben
+        var kg4value = Math.round(pcs4 * bagkg); // csomagok súlya a comp 4ben
+        var kg3value = kg - kg1value - kg4value; // maradék csomag súly a comp 3ban
 
         // számított eredmények cellákhoz rendelése
         document.getElementById('result').innerHTML = "<strong>" + bagkg + "</strong> kg/bag";
         document.getElementById('pcs1').value= pcs1;
-        document.getElementById('cell34').textContent = kg1;
+        document.getElementById('kg1value').textContent = kg1value;
         document.getElementById('cell42').textContent = percent3;
         document.getElementById('pcs3').value = pcs3;
-        document.getElementById('cell44').textContent = kg3;
+        document.getElementById('kg3value').textContent = kg3value;
         document.getElementById('pcs4').value = pcs4;
-        document.getElementById('cell54').textContent = kg4;
+        document.getElementById('kg4value').textContent = kg4value;
         }
 
     function calculatepcs1() {
@@ -273,17 +330,17 @@
         var pcs = document.getElementById('pcs').value;
         var kg = document.getElementById('kg').value;
         var bagkg = (kg / pcs);
-        var kg1 = Math.round(pcs1 * bagkg);
-        document.getElementById('cell34').textContent = kg1;
+        var kg1value = Math.round(pcs1 * bagkg);
+        document.getElementById('kg1value').textContent = kg1value;
         var percent4 = document.getElementById('percent4').value;
         var percent3 = 100 - percent1 - percent4;
         document.getElementById('cell42').textContent = percent3;
         var pcs4 = parseInt(document.getElementById('pcs4').value);
         var pcs3 = pcs - pcs1 - pcs4;
         document.getElementById('pcs3').value = pcs3;
-        var kg4 = Math.round(pcs4 * bagkg);
-        var kg3 = kg - kg1 - kg4;
-        document.getElementById('cell44').textContent = kg3;
+        var kg4value = Math.round(pcs4 * bagkg);
+        var kg3value = kg - kg1value - kg4value;
+        document.getElementById('kg3value').textContent = kg3value;
         }
 
     function calculatepcs4() {
@@ -294,23 +351,23 @@
         var pcs = document.getElementById('pcs').value;
         var kg = document.getElementById('kg').value;
         var bagkg = (kg / pcs);
-        var kg4 = Math.round(pcs4 * bagkg);
-        document.getElementById('cell54').textContent = kg4;
+        var kg4value = Math.round(pcs4 * bagkg);
+        document.getElementById('kg4value').textContent = kg4value;
         var percent1 = document.getElementById('percent1').value;
         var percent3 = 100 - percent1 - percent4;
         document.getElementById('cell42').textContent = percent3;
         var pcs1 = parseInt(document.getElementById('pcs1').value);
         var pcs3 = pcs - pcs1 - pcs4;
         document.getElementById('pcs3').value = pcs3;
-        var kg1 = Math.round(pcs1 * bagkg);
-        var kg3 = kg - kg1 - kg4;
-        document.getElementById('cell44').textContent = kg3;
+        var kg1value = Math.round(pcs1 * bagkg);
+        var kg3value = kg - kg1value - kg4value;
+        document.getElementById('kg3value').textContent = kg3value;
         }
 
     function calculatepcs1lmc() {
         var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var kg1 = Math.round(pcs1 * bagkglmc);
-        document.getElementById('cell34').textContent = kg1;
+        var kg1value = Math.round(pcs1 * bagkglmc);
+        document.getElementById('kg1value').textContent = kg1value;
         var pcs = document.getElementById('pcs').value;
         var percent1 = Math.round((pcs1 / pcs) * 100); 
         document.getElementById('percent1').value = percent1.toFixed(0);
@@ -320,12 +377,14 @@
         var pcs4 = parseInt(document.getElementById('pcs4').value);
         var percent4 = Math.round((pcs4 / pcs) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
+        var kg1diff= kg1value - kg1valuelmc; //A különbözet számítása
+        document.getElementById('kg1diff').value = kg1diff;
         }
     
     function calculatepcs3lmc() {
         var pcs3 = parseInt(document.getElementById('pcs3').value);
-        var kg3 = Math.round(pcs3 * bagkglmc);
-        document.getElementById('cell44').textContent = kg3;
+        var kg3value = Math.round(pcs3 * bagkglmc);
+        document.getElementById('kg3value').textContent = kg3value;
         var pcs = document.getElementById('pcs').value;
         var pcs1 = parseInt(document.getElementById('pcs1').value);
         var percent1 = Math.round((pcs1 / pcs) * 100);
@@ -335,12 +394,14 @@
         var pcs4 = parseInt(document.getElementById('pcs4').value);
         var percent4 = Math.round((pcs4 / pcs) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
+        var kg3diff= kg3value - kg3valuelmc; //A különbözet számítása
+        document.getElementById('kg3diff').value = kg3diff;
         }
 
     function calculatepcs4lmc() {
         var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var kg4 = Math.round(pcs4 * bagkglmc);
-        document.getElementById('cell54').textContent = kg4;
+        var kg4value = Math.round(pcs4 * bagkglmc);
+        document.getElementById('kg4value').textContent = kg4value;
         var pcs = document.getElementById('pcs').value;
         var percent4 = Math.round((pcs4 / pcs) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
@@ -350,6 +411,8 @@
         var pcs3 = parseInt(document.getElementById('pcs3').value);
         var percent3 = Math.round((pcs3 / pcs) * 100);
         document.getElementById('cell42').textContent = percent3.toFixed(0);
+        var kg4diff= kg4value - kg4valuelmc; //A különbözet számítása
+        document.getElementById('kg4diff').value = kg4diff;
         }
 
     function resetFields() {
@@ -363,17 +426,20 @@
         document.getElementById('pcs4').value = '';
         document.getElementById('percent1').value = 30;
         document.getElementById('percent4').value = 30;
-        document.getElementById('cell34').textContent = '';
+        document.getElementById('kg1value').textContent = '';
         document.getElementById('cell42').textContent = '';
         document.getElementById('pcs3').value = '';
-        document.getElementById('cell44').textContent = '';
-        document.getElementById('cell54').textContent = '';
+        document.getElementById('kg3value').textContent = '';
+        document.getElementById('kg4value').textContent = '';
         document.getElementById('cell63').textContent = '';
-        document.getElementById('cell64').textContent = '';        
+        document.getElementById('cell64').textContent = '';       
         enableButtons();
         }
 
     function setavst() {
+        if (isLMCMode === true) {
+            document.getElementById('lmcButton').click();
+            }
         document.getElementById('percent1').value = 30;
         document.getElementById('percent4').value = 30;
         document.getElementById('cell63').textContent = '';
@@ -382,6 +448,9 @@
         }
 
     function setewst() {
+        if (isLMCMode === true) {
+            document.getElementById('lmcButton').click();
+            }
         document.getElementById('percent1').value = '';
         document.getElementById('cell42').textContent = '';
         document.getElementById('percent4').value = '';
@@ -395,18 +464,18 @@
         var maxpcs34= Math.floor(1000 / bagkg);
         var pcs3 = Math.min(pcs - pcs1, maxpcs34);
         document.getElementById('pcs3').value = pcs3;
-        var kg3 = Math.round(pcs3 * bagkg);
-        document.getElementById('cell44').textContent = kg3;
+        var kg3value = Math.round(pcs3 * bagkg);
+        document.getElementById('kg3value').textContent = kg3value;
         var pcs4 = Math.min(pcs - pcs1 - pcs3, maxpcs34);
         document.getElementById('pcs4').value = pcs4;
-        var kg4 = Math.round(pcs4 * bagkg);
-        document.getElementById('cell54').textContent = kg4;
+        var kg4value = Math.round(pcs4 * bagkg);
+        document.getElementById('kg4value').textContent = kg4value;
         var pcsb = pcs - pcs1 - pcs3 - pcs4;
         document.getElementById('cell63').textContent = pcsb;
         var kgb= Math.round(pcsb * bagkg)
         document.getElementById('cell64').textContent = kgb;
-        var kg1 = kg - kgb - kg4 -kg3; // csomagok súlya a comp 1ben
-        document.getElementById('cell34').textContent = kg1;
+        var kg1value = kg - kgb - kg4value -kg3value; // csomagok súlya a comp 1ben
+        document.getElementById('kg1value').textContent = kg1value;
         }
 
     //Gombok ki/be kapcsolása
@@ -414,6 +483,7 @@
         document.getElementById('adjustpcsplus').disabled = true; 
         document.getElementById('adjustpcsminus').disabled = true; 
         document.getElementById('pcs').disabled = true;
+        document.getElementById('kg').disabled = true;
         document.getElementById('adjustpercent1plus').disabled = true; 
         document.getElementById('adjustpercent1minus').disabled = true; 
         document.getElementById('percent1').disabled = true;
@@ -429,6 +499,7 @@
         document.getElementById('adjustpcsplus').disabled = false; 
         document.getElementById('adjustpcsminus').disabled = false; 
         document.getElementById('pcs').disabled = false;
+        document.getElementById('kg').disabled = false;
         document.getElementById('adjustpercent1plus').disabled = false; 
         document.getElementById('adjustpercent1minus').disabled = false; 
         document.getElementById('percent1').disabled = false;
@@ -533,13 +604,9 @@
     document.getElementById('percent1').addEventListener('input', calculateall);
     document.getElementById('percent4').addEventListener('input', calculateall);
     document.getElementById('kg').addEventListener('input', calculateall);
-
-    // ha változtatjuk a pcs1 értékét akkor automatikusan számolja a comp1 és comp3 értékeket
-    document.getElementById('pcs1').addEventListener('input', calculatepcs1);    
-
-    // ha változtatjuk a pcs4 értékét akkor automatikusan számolja a comp4 és comp3 értékeket
+    document.getElementById('pcs1').addEventListener ('input', calculatepcs1);
     document.getElementById('pcs4').addEventListener('input', calculatepcs4);
-         
+    document.getElementById('pcs3').addEventListener ('input', calculatepcs3lmc);
   
     // In this code we check if the browser supports Service Workers
     async function registerServiceWorker() {
