@@ -82,7 +82,7 @@
             color: white;
             }
         
-        .diff-box {     /*LMC láthatatlan mző a piros kiírással*/
+        .diff-box {     /*LMC láthatatlan mező a piros kiírással*/
             position: absolute;
             bottom: 0;
             right: 0;
@@ -114,9 +114,10 @@
         <td>Total</td>
         <th> </th>
         <td>
-            <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
             <button type="button" id="adjustpcsminus" onclick="adjustpcs(-1)">−</button>
-            <input type="number" id="pcs" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input type="number" id="pcsvalue" max="999" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input id="pcsdiff" type="text" readonly class="diff-box" style="position: absolute; right: 20%;">
             <button type="button" id="adjustpcsplus" onclick="adjustpcs(1)">+</button>
             </div>
         </td>
@@ -138,9 +139,10 @@
         </td>
 
         <td>
-            <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
             <button type="button" onclick="adjustpcs1(-1)">−</button>
-            <input type="number" id="pcs1" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input type="number" id="pcs1value" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input id="pcs1diff" type="text" readonly class="diff-box" style="position: absolute; right: 20%;">
             <button type="button" onclick="adjustpcs1(1)">+</button>
             </div>
         </td>
@@ -158,9 +160,10 @@
         <td>Comp 3:</td>
         <td id="cell42"></td>
         <td>
-            <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
             <button type="button" id="adjustpcs3minus" onclick="adjustpcs3(-1)"disabled>−</button>
-            <input type="number" id="pcs3" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;"disabled>
+            <input type="number" id="pcs3value" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;"disabled>
+            <input id="pcs3diff" type="text" readonly class="diff-box" style="position: absolute; right: 20%;">
             <button type="button" id="adjustpcs3plus" onclick="adjustpcs3(1)"disabled>+</button>
             </div>
         </td>
@@ -186,9 +189,10 @@
         </td>
 
         <td>
-            <div style="display: flex; align-items: center; height: 100%; width: 100%;">
+            <div style="display: flex; align-items: center; height: 100%; width: 100%; position: relative;">
             <button type="button" onclick="adjustpcs4(-1)">−</button>
-            <input type="number" id="pcs4" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input type="number" id="pcs4value" placeholder="Enter PCS" style="width: 80%; text-align: center; font-size: 25px;">
+            <input id="pcs4diff" type="text" readonly class="diff-box" style="position: absolute; right: 20%;">
             <button type="button" onclick="adjustpcs4(1)">+</button>
             </div>
         </td>
@@ -226,7 +230,7 @@
 
     var isLMCMode = false; // Track whether LMC mode is on or off
     var bagkglmc = null; // Variable to store the bagkg constant
-    var kg1valuelmc = null;
+    //var kg1valuelmc = null;   //lehet ez nem is kell
 
     // Toggle the LMC mode and change button color
     function toggleLMC() {
@@ -236,10 +240,10 @@
         // Change button color depending on the mode
         if (isLMCMode) {
             lmcButton.classList.add('lmc-mode'); // Add LMC mode class for color change
-            document.getElementById('pcs1').removeEventListener ('input', calculatepcs1);
-            document.getElementById('pcs1').addEventListener ('input', calculatepcs1lmc);
-            document.getElementById('pcs4').removeEventListener ('input', calculatepcs4);
-            document.getElementById('pcs4').addEventListener ('input', calculatepcs4lmc);
+            document.getElementById('pcs1value').removeEventListener ('input', calculatepcs1);
+            document.getElementById('pcs1value').addEventListener ('input', calculatepcs1lmc);
+            document.getElementById('pcs4value').removeEventListener ('input', calculatepcs4);
+            document.getElementById('pcs4value').addEventListener ('input', calculatepcs4lmc);
             savedataforlmc(); // Save bagkg as a constant when LMC mode is active
             disableButtons();
         } else {
@@ -248,10 +252,14 @@
             document.getElementById('kg3diff').value = '';
             document.getElementById('kg4diff').value = '';
             document.getElementById('kgdiff').value = '';
-            document.getElementById('pcs1').addEventListener ('input', calculatepcs1);
-            document.getElementById('pcs1').removeEventListener ('input', calculatepcs1lmc);
-            document.getElementById('pcs4').addEventListener ('input', calculatepcs4);
-            document.getElementById('pcs4').removeEventListener ('input', calculatepcs4lmc);
+            document.getElementById('pcs1diff').value = '';
+            document.getElementById('pcs3diff').value = '';
+            document.getElementById('pcs4diff').value = '';
+            document.getElementById('pcsdiff').value = '';
+            document.getElementById('pcs1value').addEventListener ('input', calculatepcs1);
+            document.getElementById('pcs1value').removeEventListener ('input', calculatepcs1lmc);
+            document.getElementById('pcs4value').addEventListener ('input', calculatepcs4);
+            document.getElementById('pcs4value').removeEventListener ('input', calculatepcs4lmc);
             enableButtons();
             calculatepcs1();
             calculatepcs3();            
@@ -260,149 +268,163 @@
 
     // Save data as a constant for LMC mode calculation
     function savedataforlmc() {
-        var pcs = document.getElementById('pcs').value;
+        var pcsvalue = document.getElementById('pcsvalue').value;
         var kgvalue = document.getElementById('kgvalue').value;
-        if (pcs && kgvalue) {
-            var bagkg = (kgvalue / pcs).toFixed(2); // Calculate bagkg
+        if (pcsvalue && kgvalue) {
+            var bagkg = (kgvalue / pcsvalue).toFixed(2); // Calculate bagkg
             bagkglmc = bagkg; // Save it as a constant
             kgvaluelmc = kgvalue;
             kg1valuelmc = parseInt(document.getElementById('kg1value').textContent);
             kg3valuelmc = parseInt(document.getElementById('kg3value').textContent);
             kg4valuelmc = parseInt(document.getElementById('kg4value').textContent);
+            pcsvaluelmc = pcsvalue;
+            pcs1valuelmc = parseInt(document.getElementById('pcs1value').value);
+            pcs3valuelmc = parseInt(document.getElementById('pcs3value').value);
+            pcs4valuelmc = parseInt(document.getElementById('pcs4value').value);
             }
         }
 
     // Function to calculate results
     function calculateall() {
         // Get inputs
-        var pcs = document.getElementById('pcs').value;
+        var pcsvalue = Math.min(parseInt(document.getElementById('pcsvalue').value) || 0, 999);
+        document.getElementById('pcsvalue').value = pcsvalue; // force reset input if over 999
         var percent1 = document.getElementById('percent1').value;
         var percent4 = document.getElementById('percent4').value;
         var kgvalue = document.getElementById('kgvalue').value;
 
         // Validate inputs
-        if (!pcs || !percent1 || !percent4 || !kgvalue) {
+        if (!pcsvalue || !percent1 || !percent4 || !kgvalue) {
             return;
         }
 
         // Calculations
-        var bagkg = (kgvalue / pcs).toFixed(2); // 1 csomag súlyának számítása
-        var pcs1 = Math.round((pcs / 100) * percent1); // Csomag száma a comp 1ben
-        var pcs4 = Math.round((pcs / 100) * percent4); // Csomag száma a comp 4ben
+        var bagkg = (kgvalue / pcsvalue).toFixed(2); // 1 csomag súlyának számítása
+        var pcs1value = Math.round((pcsvalue / 100) * percent1); // Csomag száma a comp 1ben
+        var pcs4value = Math.round((pcsvalue / 100) * percent4); // Csomag száma a comp 4ben
         var percent3 = 100 - percent1 - percent4; // maradék csomag szazalek a comp 3ban
-        var pcs3 = pcs - pcs1 - pcs4 ; // maradék csomag darab a comp 3ban
-        var kg1value = Math.round(pcs1 * bagkg); // csomagok súlya a comp 1ben
-        var kg4value = Math.round(pcs4 * bagkg); // csomagok súlya a comp 4ben
+        var pcs3value = pcsvalue - pcs1value - pcs4value ; // maradék csomag darab a comp 3ban
+        var kg1value = Math.round(pcs1value * bagkg); // csomagok súlya a comp 1ben
+        var kg4value = Math.round(pcs4value * bagkg); // csomagok súlya a comp 4ben
         var kg3value = kgvalue - kg1value - kg4value; // maradék csomag súly a comp 3ban
 
         // számított eredmények cellákhoz rendelése
-        document.getElementById('result').innerHTML = "<strong>" + bagkg + "</strong> kgvalue/bag";
-        document.getElementById('pcs1').value= pcs1;
+        document.getElementById('result').innerHTML = "<strong>" + bagkg + "</strong> kg/bag";
+        document.getElementById('pcs1value').value= pcs1value;
         document.getElementById('kg1value').textContent = kg1value;
         document.getElementById('cell42').textContent = percent3;
-        document.getElementById('pcs3').value = pcs3;
+        document.getElementById('pcs3value').value = pcs3value;
         document.getElementById('kg3value').textContent = kg3value;
-        document.getElementById('pcs4').value = pcs4;
+        document.getElementById('pcs4value').value = pcs4value;
         document.getElementById('kg4value').textContent = kg4value;
         checklimit ()
         }
 
     function calculatepcs1() {
-        var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var pcs = document.getElementById('pcs').value;
-        var percent1 = Math.round((pcs1 / pcs) * 100); 
+        var pcs1value = parseInt(document.getElementById('pcs1value').value);
+        var pcsvalue = document.getElementById('pcsvalue').value;
+        var percent1 = Math.round((pcs1value / pcsvalue) * 100); 
         document.getElementById('percent1').value = percent1.toFixed(0);
-        var pcs = document.getElementById('pcs').value;
+        var pcsvalue = document.getElementById('pcsvalue').value;
         var kgvalue = document.getElementById('kgvalue').value;
-        var bagkg = (kgvalue / pcs);
-        var kg1value = Math.round(pcs1 * bagkg);
+        var bagkg = (kgvalue / pcsvalue);
+        var kg1value = Math.round(pcs1value * bagkg);
         document.getElementById('kg1value').textContent = kg1value;
         var percent4 = document.getElementById('percent4').value;
         var percent3 = 100 - percent1 - percent4;
         document.getElementById('cell42').textContent = percent3;
-        var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var pcs3 = pcs - pcs1 - pcs4;
-        document.getElementById('pcs3').value = pcs3;
-        var kg4value = Math.round(pcs4 * bagkg);
+        var pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var pcs3value = pcsvalue - pcs1value - pcs4value;
+        document.getElementById('pcs3value').value = pcs3value;
+        var kg4value = Math.round(pcs4value * bagkg);
         var kg3value = kgvalue - kg1value - kg4value;
         document.getElementById('kg3value').textContent = kg3value;
         checklimit ()
         }
 
     function calculatepcs4() {
-        var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var pcs = document.getElementById('pcs').value;
-        var percent4 = Math.round((pcs4 / pcs) * 100); 
+        var pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var pcsvalue = document.getElementById('pcsvalue').value;
+        var percent4 = Math.round((pcs4value / pcsvalue) * 100); 
         document.getElementById('percent4').value = percent4.toFixed(0);
-        var pcs = document.getElementById('pcs').value;
+        var pcsvalue = document.getElementById('pcsvalue').value;
         var kgvalue = document.getElementById('kgvalue').value;
-        var bagkg = (kgvalue / pcs);
-        var kg4value = Math.round(pcs4 * bagkg);
+        var bagkg = (kgvalue / pcsvalue);
+        var kg4value = Math.round(pcs4value * bagkg);
         document.getElementById('kg4value').textContent = kg4value;
         var percent1 = document.getElementById('percent1').value;
         var percent3 = 100 - percent1 - percent4;
         document.getElementById('cell42').textContent = percent3;
-        var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var pcs3 = pcs - pcs1 - pcs4;
-        document.getElementById('pcs3').value = pcs3;
-        var kg1value = Math.round(pcs1 * bagkg);
+        var pcs1value = parseInt(document.getElementById('pcs1value').value);
+        var pcs3value = pcsvalue - pcs1value - pcs4value;
+        document.getElementById('pcs3value').value = pcs3value;
+        var kg1value = Math.round(pcs1value * bagkg);
         var kg3value = kgvalue - kg1value - kg4value;
         document.getElementById('kg3value').textContent = kg3value;
         checklimit ()
         }
 
     function calculatepcs1lmc() {
-        var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var kg1value = Math.round(pcs1 * bagkglmc);
+        var pcs1value = parseInt(document.getElementById('pcs1value').value);
+        var kg1value = Math.round(pcs1value * bagkglmc);
         document.getElementById('kg1value').textContent = kg1value;
-        var pcs = document.getElementById('pcs').value;
-        var percent1 = Math.round((pcs1 / pcs) * 100); 
+        var pcsvalue = document.getElementById('pcsvalue').value;
+        var percent1 = Math.round((pcs1value / pcsvalue) * 100); 
         document.getElementById('percent1').value = percent1.toFixed(0);
-        var pcs3 = parseInt(document.getElementById('pcs3').value);
-        var percent3 = Math.round((pcs3 / pcs) * 100);
+        var pcs3value = parseInt(document.getElementById('pcs3value').value);
+        var percent3 = Math.round((pcs3value / pcsvalue) * 100);
         document.getElementById('cell42').textContent = percent3.toFixed(0);
-        var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var percent4 = Math.round((pcs4 / pcs) * 100);
+        var pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var percent4 = Math.round((pcs4value / pcsvalue) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
-        var kg1diff= kg1value - kg1valuelmc; //A különbözet számítása
+        var kg1diff= kg1value - kg1valuelmc; //A kg1 különbözet számítása
         document.getElementById('kg1diff').value = (kg1diff > 0 ? '+' : '') + kg1diff;
+        var pcs1diff= pcs1value - pcs1valuelmc; //A pcs1 különbözet számítása
+        document.getElementById('pcs1diff').value = (pcs1diff > 0 ? '+' : '') + pcs1diff;
         calculatekglmc()
+        calculatepcslmc()
         }
     
     function calculatepcs3lmc() {
-        var pcs3 = parseInt(document.getElementById('pcs3').value);
-        var kg3value = Math.round(pcs3 * bagkglmc);
+        var pcs3value = parseInt(document.getElementById('pcs3value').value);
+        var kg3value = Math.round(pcs3value * bagkglmc);
         document.getElementById('kg3value').textContent = kg3value;
-        var pcs = document.getElementById('pcs').value;
-        var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var percent1 = Math.round((pcs1 / pcs) * 100);
+        var pcsvalue = document.getElementById('pcsvalue').value;
+        var pcs1value = parseInt(document.getElementById('pcs1value').value);
+        var percent1 = Math.round((pcs1value / pcsvalue) * 100);
         document.getElementById('percent1').value = percent1.toFixed(0);
-        var percent3 = Math.round((pcs3 / pcs) * 100);
+        var percent3 = Math.round((pcs3value / pcsvalue) * 100);
         document.getElementById('cell42').textContent = percent3.toFixed(0);
-        var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var percent4 = Math.round((pcs4 / pcs) * 100);
+        var pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var percent4 = Math.round((pcs4value / pcsvalue) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
         var kg3diff= kg3value - kg3valuelmc; //A különbözet számítása
         document.getElementById('kg3diff').value = (kg3diff > 0 ? '+' : '') + kg3diff;
+        var pcs3diff= pcs3value - pcs3valuelmc; //A pcs3 különbözet számítása
+        document.getElementById('pcs3diff').value = (pcs3diff > 0 ? '+' : '') + pcs3diff;
         calculatekglmc()
+        calculatepcslmc()
         }
 
     function calculatepcs4lmc() {
-        var pcs4 = parseInt(document.getElementById('pcs4').value);
-        var kg4value = Math.round(pcs4 * bagkglmc);
+        var pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var kg4value = Math.round(pcs4value * bagkglmc);
         document.getElementById('kg4value').textContent = kg4value;
-        var pcs = document.getElementById('pcs').value;
-        var percent4 = Math.round((pcs4 / pcs) * 100);
+        var pcsvalue = document.getElementById('pcsvalue').value;
+        var percent4 = Math.round((pcs4value / pcsvalue) * 100);
         document.getElementById('percent4').value = percent4.toFixed(0);
-        var pcs1 = parseInt(document.getElementById('pcs1').value);
-        var percent1 = Math.round((pcs1 / pcs) * 100);
+        var pcs1value = parseInt(document.getElementById('pcs1value').value);
+        var percent1 = Math.round((pcs1value / pcsvalue) * 100);
         document.getElementById('percent1').value = percent1.toFixed(0);
-        var pcs3 = parseInt(document.getElementById('pcs3').value);
-        var percent3 = Math.round((pcs3 / pcs) * 100);
+        var pcs3value = parseInt(document.getElementById('pcs3value').value);
+        var percent3 = Math.round((pcs3value / pcsvalue) * 100);
         document.getElementById('cell42').textContent = percent3.toFixed(0);
         var kg4diff= kg4value - kg4valuelmc; //A különbözet számítása
         document.getElementById('kg4diff').value = (kg4diff > 0 ? '+' : '') + kg4diff;
+        var pcs4diff= pcs4value - pcs4valuelmc; //A pcs4 különbözet számítása
+        document.getElementById('pcs4diff').value = (pcs4diff > 0 ? '+' : '') + pcs4diff;
         calculatekglmc()
+        calculatepcslmc()
         }
 
     function calculatekglmc() {
@@ -416,24 +438,35 @@
         document.getElementById('kgdiff').value = (kgdiff > 0 ? '+' : '') + kgdiff;
         }
 
+    function calculatepcslmc() {        //ha LMC módban változtatjuk a compartmenekben az értéket, akkor a total pcsvalue-t is számítja ez a function
+        pcs1value = parseInt(document.getElementById('pcs1value').value);
+        pcs3value = parseInt(document.getElementById('pcs3value').value);
+        pcs4value = parseInt(document.getElementById('pcs4value').value);
+        var pcsvalue = pcs1value + pcs3value + pcs4value
+        document.getElementById('pcsvalue').value = pcsvalue;
+        var pcsdiff= pcsvalue - pcsvaluelmc; //A különbözet számítása
+        document.getElementById('pcsdiff').value = (pcsdiff > 0 ? '+' : '') + pcsdiff;
+        }
+
     function resetFields() {
-        // Clear pcs and kgvalue fields
+        // Clear pcsvalue and kgvalue fields
         if (isLMCMode === true) {
             document.getElementById('lmcButton').click();
             }
-        document.getElementById('pcs').value = '';
+        document.getElementById('pcsvalue').value = '';
         document.getElementById('kgvalue').value = '';
-        document.getElementById('pcs1').value = '';
-        document.getElementById('pcs4').value = '';
+        document.getElementById('pcs1value').value = '';
+        document.getElementById('pcs4value').value = '';
         document.getElementById('percent1').value = 30;
         document.getElementById('percent4').value = 30;
         document.getElementById('kg1value').textContent = '';
         document.getElementById('cell42').textContent = '';
-        document.getElementById('pcs3').value = '';
+        document.getElementById('pcs3value').value = '';
         document.getElementById('kg3value').textContent = '';
         document.getElementById('kg4value').textContent = '';
         document.getElementById('cell63').textContent = '';
-        document.getElementById('cell64').textContent = '';       
+        document.getElementById('cell64').textContent = '';
+        document.getElementById('result').textContent = '';
         enableButtons();
         checklimit ()
         }
@@ -457,23 +490,23 @@
         document.getElementById('percent1').value = '';
         document.getElementById('cell42').textContent = '';
         document.getElementById('percent4').value = '';
-        var pcs = document.getElementById('pcs').value;
+        var pcsvalue = document.getElementById('pcsvalue').value;
         var kgvalue = document.getElementById('kgvalue').value;
-        var bagkg = (kgvalue / pcs);
+        var bagkg = (kgvalue / pcsvalue);
         document.getElementById('result').innerHTML = "<strong>" + bagkg.toFixed(2) + "</strong> kgvalue/bag";
         var maxpcs1= Math.floor(1500 / bagkg);
-        var pcs1 = Math.min(pcs, maxpcs1);
-        document.getElementById('pcs1').value = pcs1;
+        var pcs1value = Math.min(pcsvalue, maxpcs1);
+        document.getElementById('pcs1value').value = pcs1value;
         var maxpcs34= Math.floor(1000 / bagkg);
-        var pcs3 = Math.min(pcs - pcs1, maxpcs34);
-        document.getElementById('pcs3').value = pcs3;
-        var kg3value = Math.round(pcs3 * bagkg);
+        var pcs3value = Math.min(pcsvalue - pcs1value, maxpcs34);
+        document.getElementById('pcs3value').value = pcs3value;
+        var kg3value = Math.round(pcs3value * bagkg);
         document.getElementById('kg3value').textContent = kg3value;
-        var pcs4 = Math.min(pcs - pcs1 - pcs3, maxpcs34);
-        document.getElementById('pcs4').value = pcs4;
-        var kg4value = Math.round(pcs4 * bagkg);
+        var pcs4value = Math.min(pcsvalue - pcs1value - pcs3value, maxpcs34);
+        document.getElementById('pcs4value').value = pcs4value;
+        var kg4value = Math.round(pcs4value * bagkg);
         document.getElementById('kg4value').textContent = kg4value;
-        var pcsb = pcs - pcs1 - pcs3 - pcs4;
+        var pcsb = pcsvalue - pcs1value - pcs3value - pcs4value;
         document.getElementById('cell63').textContent = pcsb;
         var kgb= Math.round(pcsb * bagkg)
         document.getElementById('cell64').textContent = kgb;
@@ -486,7 +519,7 @@
     function disableButtons() {
         document.getElementById('adjustpcsplus').disabled = true; 
         document.getElementById('adjustpcsminus').disabled = true; 
-        document.getElementById('pcs').disabled = true;
+        document.getElementById('pcsvalue').disabled = true;
         document.getElementById('kgvalue').disabled = true;
         document.getElementById('adjustpercent1plus').disabled = true; 
         document.getElementById('adjustpercent1minus').disabled = true; 
@@ -496,13 +529,13 @@
         document.getElementById('percent4').disabled = true;
         document.getElementById('adjustpcs3plus').disabled = false; 
         document.getElementById('adjustpcs3minus').disabled = false; 
-        document.getElementById('pcs3').disabled = false;
+        document.getElementById('pcs3value').disabled = false;
         }
     
     function enableButtons() {
         document.getElementById('adjustpcsplus').disabled = false; 
         document.getElementById('adjustpcsminus').disabled = false; 
-        document.getElementById('pcs').disabled = false;
+        document.getElementById('pcsvalue').disabled = false;
         document.getElementById('kgvalue').disabled = false;
         document.getElementById('adjustpercent1plus').disabled = false; 
         document.getElementById('adjustpercent1minus').disabled = false; 
@@ -512,7 +545,7 @@
         document.getElementById('percent4').disabled = false;
         document.getElementById('adjustpcs3plus').disabled = true; 
         document.getElementById('adjustpcs3minus').disabled = true; 
-        document.getElementById('pcs3').disabled = true;
+        document.getElementById('pcs3value').disabled = true;
         }
 
     function checklimit () {
@@ -538,7 +571,7 @@
 
     //A GOMBOKHOZ TARTOZÓ FÜGGVÉNYEK
     function adjustpcs(change) {
-        const pcsInput = document.getElementById('pcs');
+        const pcsInput = document.getElementById('pcsvalue');
         let currentValue = parseInt(pcsInput.value) || 0;
         currentValue += change;
         if (currentValue < 0) currentValue = 0; // Prevent negative values
@@ -558,8 +591,8 @@
 
     function adjustpcs1(change) {
         if (isLMCMode) {
-            const pcs1Input = document.getElementById('pcs1');
-            const pcsInput = document.getElementById('pcs');
+            const pcs1Input = document.getElementById('pcs1value');
+            const pcsInput = document.getElementById('pcsvalue');
             let currentValue = parseInt(pcs1Input.value) || 0;
             let currentValuePcs = parseInt(pcsInput.value) || 0;
             currentValue += change;
@@ -569,7 +602,7 @@
             pcsInput.value = currentValuePcs;
             calculatepcs1lmc();
         } else {
-            const pcs1Input = document.getElementById('pcs1');
+            const pcs1Input = document.getElementById('pcs1value');
             let currentValue = parseInt(pcs1Input.value) || 0;
             currentValue += change;
             if (currentValue < 0) currentValue = 0; // Prevent negative values
@@ -579,8 +612,8 @@
         }
 
     function adjustpcs3(change) {
-        const pcs3Input = document.getElementById('pcs3');
-        const pcsInput = document.getElementById('pcs');
+        const pcs3Input = document.getElementById('pcs3value');
+        const pcsInput = document.getElementById('pcsvalue');
         let currentValue = parseInt(pcs3Input.value) || 0;
         let currentValuePcs = parseInt(pcsInput.value) || 0;
         currentValue += change;
@@ -603,8 +636,8 @@
 
     function adjustpcs4(change) {
         if (isLMCMode) {
-            const pcs4Input = document.getElementById('pcs4');
-            const pcsInput = document.getElementById('pcs');
+            const pcs4Input = document.getElementById('pcs4value');
+            const pcsInput = document.getElementById('pcsvalue');
             let currentValue = parseInt(pcs4Input.value) || 0;
             let currentValuePcs = parseInt(pcsInput.value) || 0;
             currentValue += change;
@@ -614,7 +647,7 @@
             pcsInput.value = currentValuePcs;
             calculatepcs4lmc();
         } else {
-            const pcs4Input = document.getElementById('pcs4');
+            const pcs4Input = document.getElementById('pcs4value');
             let currentValue = parseInt(pcs4Input.value) || 0;
             currentValue += change;
             if (currentValue < 0) currentValue = 0; // Prevent negative values
@@ -624,13 +657,13 @@
         }
 
     // Add event listeners to each input field to trigger calculation on change
-    document.getElementById('pcs').addEventListener('input', calculateall);
+    document.getElementById('pcsvalue').addEventListener('input', calculateall);
     document.getElementById('percent1').addEventListener('input', calculateall);
     document.getElementById('percent4').addEventListener('input', calculateall);
     document.getElementById('kgvalue').addEventListener('input', calculateall);
-    document.getElementById('pcs1').addEventListener ('input', calculatepcs1);
-    document.getElementById('pcs4').addEventListener('input', calculatepcs4);
-    document.getElementById('pcs3').addEventListener ('input', calculatepcs3lmc);
+    document.getElementById('pcs1value').addEventListener ('input', calculatepcs1);
+    document.getElementById('pcs4value').addEventListener('input', calculatepcs4);
+    document.getElementById('pcs3value').addEventListener ('input', calculatepcs3lmc);
   
     // In this code we check if the browser supports Service Workers
     async function registerServiceWorker() {
