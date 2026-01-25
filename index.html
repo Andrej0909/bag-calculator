@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bag Calculator</title>
     <style>
-        button {
+        button, input {
             touch-action: manipulation;
         }
+
 
         * {
             box-sizing: border-box;
@@ -229,7 +230,23 @@
 
 
 <script>
+    // Az összes időpont és tartam mezőhöz hozzáadjuk a nagy gombos billentyűzetet
+    const bagInputs = [
+        'pcsvalue', 
+        'kgvalue', 
+        'percent1', 
+        'pcs1value', 
+        'pcs3value', 
+        'percent4', 
+        'pcs4value'
+    ];
 
+    bagInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.setAttribute('inputmode', 'tel');
+        }
+    });
 
     var isLMCMode = false; // Track whether LMC mode is on or off
     var bagkglmc = null; // Variable to store the bagkg constant
